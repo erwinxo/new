@@ -58,19 +58,19 @@ const LoginPage: React.FC = () => {
               onClick={() => handleFormChange('login')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                 currentForm === 'login'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-[#CF8BA9] text-white shadow-sm hover:bg-[#b97a97]'
+                  : 'text-gray-600 hover:bg-[#CF8BA9] hover:text-white'
               }`}
             >
-              <LogIn className="h-4 w-4" />
+              <LogIn className="h-4 w-4" /
               Sign In
             </button>
             <button
               onClick={() => handleFormChange('signup')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                 currentForm === 'signup'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-[#CF8BA9] text-white shadow-sm'
+                  : 'text-gray-600 hover:text-[#CF8BA9]'
               }`}
             >
               <UserPlus className="h-4 w-4" />
