@@ -14,6 +14,10 @@ import cloudinary
 import cloudinary.uploader
 from bson import ObjectId
 import secrets
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize FastAPI
 app = FastAPI(title="StudyConnect API", version="1.0.0")
@@ -37,7 +41,7 @@ app.add_middleware(
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb+srv://username:password@cluster.mongodb.net/studyconnect")
+MONGODB_URL = os.getenv("MONGODB_URL", "mongodb+srv://admin:wbWR1zL8vNgWylMg@cluster0.nxklt.mongodb.net/studyconnect")
 
 # Email configuration (temporarily disabled)
 # GMAIL_EMAIL = os.getenv("GMAIL_EMAIL", "your-email@gmail.com")
@@ -198,7 +202,7 @@ async def signup(user: UserCreate):
     # Create user document
     user_doc = {
         "name": user.name,
-        "username": user.username,
+        "username": user.username,  # <--- This is the username field
         "email": user.email,
         "password": hashed_password,
         "bio": user.bio,

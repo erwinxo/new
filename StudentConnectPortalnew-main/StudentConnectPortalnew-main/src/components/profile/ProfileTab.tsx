@@ -39,7 +39,7 @@ const ProfileTab: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <div className="bg-white/80 backdrop-blur-md rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         {/* Cover Photo */}
-        <div className="h-48 bg-gradient-to-r from-blue-600 to-purple-600 relative">
+        <div className="h-48 bg-gradient-to-r from-pink-400 to-pink-300 relative">
           <button className="absolute top-4 right-4 bg-white/20 text-white p-2 rounded-lg hover:bg-white/30 transition-colors">
             <Camera className="h-4 w-4" />
           </button>
@@ -76,7 +76,7 @@ const ProfileTab: React.FC = () => {
                 </div>
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg mt-2 sm:mt-0"
+                  className="flex items-center gap-2 bg-gradient-to-r from-pink-400 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg mt-2 sm:mt-0"
                 >
                   <Edit2 className="h-4 w-4" />
                   Edit Profile

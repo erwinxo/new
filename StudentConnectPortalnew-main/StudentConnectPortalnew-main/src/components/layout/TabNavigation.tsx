@@ -13,7 +13,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
         onClick={() => onTabChange('posts')}
         className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
           activeTab === 'posts'
-            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+            ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
       >
@@ -25,7 +25,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
         onClick={() => onTabChange('profile')}
         className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
           activeTab === 'profile'
-            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+            ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white shadow-md'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
         }`}
       >

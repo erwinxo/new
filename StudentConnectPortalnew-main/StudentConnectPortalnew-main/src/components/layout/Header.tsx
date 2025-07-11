@@ -21,25 +21,27 @@ const Header: React.FC<HeaderProps> = ({ onCreatePost }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
+            <div className="bg-gradient-to-r from-pink-400 to-pink-500 p-2 rounded-lg">
               <Users className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="w-fill py-4 px-2 rounded-lg bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold shadow-md hover:bg-pink-500 transition-all">
               StudyConnect
             </h1>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4">
-            {/* Create Post Button */}
+          {/* Centered Create Post Button */}
+          <div className="flex-1 flex justify-center">
             <button
               onClick={onCreatePost}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+              className="py-3 px-8 rounded-full bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold shadow-md hover:bg-pink-500 transition-all flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">Create</span>
             </button>
+          </div>
 
+          {/* Actions (Notifications & User Menu) */}
+          <div className="flex items-center gap-4">
             {/* Notifications */}
             <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
               <Bell className="h-5 w-5" />
@@ -51,11 +53,11 @@ const Header: React.FC<HeaderProps> = ({ onCreatePost }) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <img
-                  src={user?.profilePicture || `https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400`}
+                {/* <img
+                  // src={user?.profilePicture || `https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400`}
                   alt={user?.name}
                   className="h-8 w-8 rounded-full object-cover"
-                />
+                /> */}
                 <span className="hidden sm:inline text-sm font-medium text-gray-700">
                   {user?.name}
                 </span>

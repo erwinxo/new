@@ -29,21 +29,21 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-white to-pink-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-full">
+            <div className="bg-gradient-to-r from-pink-400 to-pink-300 p-3 rounded-full">
               <Users className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {currentForm === 'login' && 'Welcome Back'}
+          <h2 className="text-3xl font-bold text-pink-700 mb-2">
+            {currentForm === 'login' && 'Hello User!'}
             {currentForm === 'signup' && 'Join Our Community'}
             {currentForm === 'forgot' && 'Reset Password'}
           </h2>
-          <p className="text-gray-600">
+          <p className="text-pink-500">
             {currentForm === 'login' && 'Sign in to your account to continue'}
             {currentForm === 'signup' && 'Create your account to get started'}
             {currentForm === 'forgot' && 'Enter your email to reset your password'}
@@ -58,23 +58,23 @@ const LoginPage: React.FC = () => {
               onClick={() => handleFormChange('login')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                 currentForm === 'login'
-                  ? 'bg-[#CF8BA9] text-white shadow-sm hover:bg-[#b97a97]'
-                  : 'text-gray-600 hover:bg-[#CF8BA9] hover:text-white'
+                  ? 'bg-pink-200 text-pink-800 shadow-sm hover:bg-pink-300'
+                  : 'text-pink-600 hover:bg-pink-100 hover:text-pink-800'
               }`}
             >
-              <LogIn className="h-4 w-4" /
+              <LogIn className="h-4 w-4" />
               Sign In
             </button>
             <button
               onClick={() => handleFormChange('signup')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                 currentForm === 'signup'
-                  ? 'bg-[#CF8BA9] text-white shadow-sm'
-                  : 'text-gray-600 hover:text-[#CF8BA9]'
+                  ? 'bg-pink-200 text-pink-800 shadow-sm hover:bg-pink-300'
+                  : 'text-pink-600 hover:bg-pink-100 hover:text-pink-800'
               }`}
             >
               <UserPlus className="h-4 w-4" />
-              Sign Up
+              Register
             </button>
           </div>
 

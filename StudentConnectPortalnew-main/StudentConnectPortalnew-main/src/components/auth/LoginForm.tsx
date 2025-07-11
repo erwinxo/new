@@ -101,10 +101,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword }) => {
 
       <button
         type="submit"
-        disabled={isLoading}
-        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="w-full py-3 rounded-lg bg-pink-400 text-white font-semibold shadow-md hover:bg-pink-500 transition-all"
       >
-        {isLoading ? <LoadingSpinner /> : 'Sign In'}
+        Sign In
       </button>
     </form>
   );

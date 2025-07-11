@@ -100,7 +100,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
               />
               <label
                 htmlFor="profileImageUpload"
-                className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
+                className="absolute bottom-0 right-0 bg-pink-500 text-white p-2 rounded-full hover:bg-pink-400 transition-colors"
               >
                 {uploadingImage ? (
                   <div className="h-3 w-3">
@@ -208,7 +208,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-pink-400 to-pink-500 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-1"
             >
               {isLoading ? <LoadingSpinner /> : 'Save Changes'}
             </button>

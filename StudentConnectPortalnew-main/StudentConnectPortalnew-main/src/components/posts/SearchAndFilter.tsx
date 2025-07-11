@@ -45,7 +45,7 @@ const SearchAndFilter: React.FC<SearchAndFilterProps> = ({
               onClick={() => onCategoryChange(category.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                 selectedCategory === category.id
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-md'
+                  ? 'bg-gradient-to-r from-pink-400 to-pink-500 text-white border-transparent shadow-md'
                   : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
               }`}
             >
