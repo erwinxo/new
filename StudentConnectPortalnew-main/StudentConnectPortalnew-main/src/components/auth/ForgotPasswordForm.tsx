@@ -41,7 +41,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBackToLogin }
         </p>
         <button
           onClick={onBackToLogin}
-          className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm"
+          className="flex items-center justify-center gap-2 text-pink-500 hover:text-blue-800 font-medium text-sm"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Sign In
@@ -63,7 +63,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBackToLogin }
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
             placeholder="Enter your email address"
           />
           <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -73,7 +73,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBackToLogin }
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-pink-400 to-pink-500 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         {isLoading ? <LoadingSpinner /> : 'Send Reset Instructions'}
       </button>
@@ -82,7 +82,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onBackToLogin }
         <button
           type="button"
           onClick={onBackToLogin}
-          className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm"
+          className="flex items-center justify-center gap-2 text-pink-500 hover:text-pink-700 font-medium text-sm"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Sign In

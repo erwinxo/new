@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .url-input { width: 400px; padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Backend Connection Debug</h1>
+    
+    <div>
+        <h3>Test Different Backend URLs</h3>
+        <input type="text" id="customUrl" class="url-input" placeholder="Enter backend URL to test" value="https://bankend-5bru.onrender.com">
+        <button onclick="testCustomUrl()">Test Custom URL</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <button onclick="testAllUrls()">Test All Possible URLs</button>
+    <button onclick="testLocalBackend()">Test Local Backend</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function testUrl(url, description) {
+            try {
+                addResult(`🔄 Testing: ${description}`, 'info');
+                addResult(`📡 URL: ${url}`, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ ${description}: Success (${response.status})`, 'success');
+                    addResult(`📄 Response: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    addResult(`❌ ${description}: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ ${description}: ${error.message}`, 'error');
+                addResult(`🔍 Error Type: ${error.name}`, 'error');
+            }
+        }
+        
+        async function testCustomUrl() {
+            const url = document.getElementById('customUrl').value;
+            if (!url) {
+                addResult('❌ Please enter a URL', 'error');
+                return;
+            }
+            clearResults();
+            await testUrl(url, 'Custom URL');
+        }
+        
+        async function testAllUrls() {
+            clearResults();
+            addResult('🔄 Testing all possible backend URLs...', 'info');
+            
+            const urls = [
+                'https://bankend-5bru.onrender.com/',
+                'https://bankend-5bru.onrender.com/health',
+                'https://bankend-5bru.onrender.com/api/',
+                'https://bankend-5bru.onrender.com/api/health',
+                'https://studentconnectportalnew.onrender.com/',
+                'https://studentconnectportalnew.onrender.com/health',
+                'http://localhost:8000/',
+                'http://localhost:8000/health'
+            ];
+            
+            for (const url of urls) {
+                await testUrl(url, url);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between tests
+            }
+            
+            addResult('✅ All URL tests completed!', 'success');
+        }
+        
+        async function testLocalBackend() {
+            clearResults();
+            addResult('🔄 Testing local backend...', 'info');
+            await testUrl('http://localhost:8000/', 'Local Backend');
+            await testUrl('http://localhost:8000/health', 'Local Health');
+        }
+        
+        // Auto-test on page load
+        window.onload = function() {
+            addResult('🚀 Backend Connection Debug Ready', 'info');
+            addResult('💡 Try testing different URLs to find the working backend', 'info');
+        };
+    </script>
+</body>
+</html> 

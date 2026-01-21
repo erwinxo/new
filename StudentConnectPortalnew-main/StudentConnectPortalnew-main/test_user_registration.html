@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        .form-group { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>User Registration Test - Render Backend</h1>
+    
+    <div id="results"></div>
+    
+    <div>
+        <h3>Test User Registration</h3>
+        <div class="form-group">
+            <label>Name:</label><br>
+            <input type="text" id="name" value="Test User">
+        </div>
+        <div class="form-group">
+            <label>Username:</label><br>
+            <input type="text" id="username" value="testuser">
+        </div>
+        <div class="form-group">
+            <label>Email:</label><br>
+            <input type="email" id="email" value="test@example.com">
+        </div>
+        <div class="form-group">
+            <label>Password:</label><br>
+            <input type="password" id="password" value="password123">
+        </div>
+        <div class="form-group">
+            <label>Bio:</label><br>
+            <input type="text" id="bio" value="Test bio">
+        </div>
+        <button onclick="testRegistration()">Test Registration</button>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="checkUsers()">Check Users in Database</button>
+    </div>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        const API_BASE_URL = 'https://bankend-5bru.onrender.com';
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function testRegistration() {
+            clearResults();
+            addResult('🔄 Testing user registration...', 'info');
+            
+            const userData = {
+                name: document.getElementById('name').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                bio: document.getElementById('bio').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('✅ User registration successful!', 'success');
+                    addResult(`👤 User ID: ${data.user.id}`, 'success');
+                    addResult(`👤 User Name: ${data.user.name}`, 'success');
+                    addResult(`📧 User Email: ${data.user.email}`, 'success');
+                    addResult(`🔑 Token received: ${data.access_token ? 'Yes' : 'No'}`, 'success');
+                    
+                    // Store token for login test
+                    localStorage.setItem('authToken', data.access_token);
+                } else {
+                    const errorData = await response.json();
+                    addResult(`❌ Registration failed: ${errorData.detail}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Registration error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            clearResults();
+            addResult('🔄 Testing user login...', 'info');
+            
+            const loginData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('✅ User login successful!', 'success');
+                    addResult(`👤 User Name: ${data.user.name}`, 'success');
+                    addResult(`📧 User Email: ${data.user.email}`, 'success');
+                    addResult(`🔑 Token received: ${data.access_token ? 'Yes' : 'No'}`, 'success');
+                    
+                    // Store token
+                    localStorage.setItem('authToken', data.access_token);
+                } else {
+                    const errorData = await response.json();
+                    addResult(`❌ Login failed: ${errorData.detail}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkUsers() {
+            clearResults();
+            addResult('🔄 Checking users in database...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`📊 Database Status: ${data.database}`, 'success');
+                    addResult(`👥 Users in Database: ${data.user_count}`, 'success');
+                    addResult(`📁 Collections: ${data.collections.join(', ')}`, 'success');
+                    addResult(`🌐 MongoDB URL: ${data.mongodb_url}`, 'info');
+                } else {
+                    addResult('❌ Could not check database health', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Error checking database: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-check database on page load
+        window.onload = function() {
+            addResult('🚀 User Registration Test Ready', 'info');
+            addResult('📡 API URL: ' + API_BASE_URL, 'info');
+            checkUsers();
+        };
+    </script>
+</body>
+</html> 

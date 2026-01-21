@@ -15,6 +15,8 @@ import cloudinary.uploader
 from bson import ObjectId
 import secrets
 from dotenv import load_dotenv
+from cryptography.fernet import Fernet
+import base64
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,10 +28,11 @@ app = FastAPI(title="StudyConnect API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173", 
+        "http://localhost:5173",
         "https://student-connect-portalnew.vercel.app",
         "https://*.onrender.com",
         "https://studentconnectportalnew.onrender.com",
+        "https://vocal-wisp-e6ce16.netlify.app",  # Netlify frontend
         os.getenv("FRONTEND_URL", "http://localhost:5173")
     ],
     allow_credentials=True,
@@ -61,6 +64,58 @@ security = HTTPBearer()
 # MongoDB client
 client = AsyncIOMotorClient(MONGODB_URL)
 db = client.studyconnect
+
+# Encryption setup
+def get_encryption_key():
+    """Get or generate encryption key for chat messages"""
+    key = os.getenv("CHAT_ENCRYPTION_KEY")
+    if not key:
+        # Generate a new key if none exists (for development)
+        # In production, always set this environment variable
+        key = Fernet.generate_key()
+        print(f"WARNING: Generated new encryption key. Set CHAT_ENCRYPTION_KEY={key.decode()} in your environment variables.")
+    else:
+        # Ensure the key is in bytes
+        if isinstance(key, str):
+            key = key.encode()
+    return key
+
+# Initialize encryption
+try:
+    encryption_key = get_encryption_key()
+    fernet = Fernet(encryption_key)
+    print("✅ Chat encryption initialized successfully")
+except Exception as e:
+    print(f"❌ Failed to initialize chat encryption: {e}")
+    fernet = None
+
+def encrypt_message(content: str) -> str:
+    """Encrypt a message content"""
+    if not fernet:
+        return content  # Fallback to plain text if encryption fails
+    try:
+        encrypted = fernet.encrypt(content.encode())
+        return base64.b64encode(encrypted).decode()
+    except Exception as e:
+        print(f"Encryption error: {e}")
+        return content
+
+def decrypt_message(encrypted_content: str) -> str:
+    """Decrypt a message content"""
+    if not fernet:
+        return encrypted_content  # Return as-is if encryption is not available
+    try:
+        # Check if content is encrypted (base64 encoded)
+        try:
+            decoded = base64.b64decode(encrypted_content.encode())
+            decrypted = fernet.decrypt(decoded)
+            return decrypted.decode()
+        except:
+            # If decryption fails, assume it's plain text (for backward compatibility)
+            return encrypted_content
+    except Exception as e:
+        print(f"Decryption error: {e}")
+        return encrypted_content
 
 # Pydantic models
 class UserCreate(BaseModel):
@@ -113,6 +168,26 @@ class User(BaseModel):
     email: str
     bio: str
     profile_picture: Optional[str] = None
+    created_at: datetime
+
+# Messaging models
+class MessageCreate(BaseModel):
+    content: str
+    recipient_id: str
+
+class Message(BaseModel):
+    id: str
+    sender_id: str
+    recipient_id: str
+    content: str
+    created_at: datetime
+    read: bool = False
+
+class Conversation(BaseModel):
+    id: str
+    participants: List[str]
+    last_message: Optional[Message] = None
+    unread_count: int = 0
     created_at: datetime
 
 # Helper functions
@@ -511,6 +586,210 @@ async def get_user_profile(user_id: str):
         "created_at": user["created_at"],
         "posts_count": posts_count
     }
+
+# Messaging endpoints
+@app.post("/messages")
+async def send_message(message: MessageCreate, current_user: dict = Depends(get_current_user)):
+    try:
+        recipient_object_id = ObjectId(message.recipient_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid recipient ID")
+    
+    # Check if recipient exists
+    recipient = await db.users.find_one({"_id": recipient_object_id})
+    if not recipient:
+        raise HTTPException(status_code=404, detail="Recipient not found")
+    
+    # Create message document
+    message_doc = {
+        "sender_id": current_user["_id"],
+        "recipient_id": recipient_object_id,
+        "content": message.content,
+        "created_at": datetime.utcnow(),
+        "read": False
+    }
+    
+    # Encrypt content
+    message_doc["content"] = encrypt_message(message_doc["content"])
+
+    # Insert message
+    result = await db.messages.insert_one(message_doc)
+    created_message = await db.messages.find_one({"_id": result.inserted_id})
+    
+    # Convert ObjectIds to strings and decrypt content for response
+    created_message["id"] = str(created_message["_id"])
+    created_message["sender_id"] = str(created_message["sender_id"])
+    created_message["recipient_id"] = str(created_message["recipient_id"])
+    # Decrypt content for the response
+    created_message["content"] = decrypt_message(created_message["content"])
+    del created_message["_id"]
+    
+    return created_message
+
+@app.get("/conversations")
+async def get_conversations(current_user: dict = Depends(get_current_user)):
+    # Get all messages where current user is sender or recipient
+    pipeline = [
+        {
+            "$match": {
+                "$or": [
+                    {"sender_id": current_user["_id"]},
+                    {"recipient_id": current_user["_id"]}
+                ]
+            }
+        },
+        {
+            "$sort": {"created_at": -1}
+        },
+        {
+            "$group": {
+                "_id": {
+                    "$cond": [
+                        {"$eq": ["$sender_id", current_user["_id"]]},
+                        "$recipient_id",
+                        "$sender_id"
+                    ]
+                },
+                "last_message": {"$first": "$$ROOT"},
+                "unread_count": {
+                    "$sum": {
+                        "$cond": [
+                            {
+                                "$and": [
+                                    {"$eq": ["$recipient_id", current_user["_id"]]},
+                                    {"$eq": ["$read", False]}
+                                ]
+                            },
+                            1,
+                            0
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "_id",
+                "foreignField": "_id",
+                "as": "user"
+            }
+        },
+        {
+            "$unwind": "$user"
+        },
+        {
+            "$project": {
+                "conversation_id": "$_id",
+                "participant": {
+                    "id": "$user._id",
+                    "name": "$user.name",
+                    "username": "$user.username",
+                    "profile_picture": "$user.profile_picture"
+                },
+                "last_message": {
+                    "id": "$last_message._id",
+                    "content": "$last_message.content",
+                    "created_at": "$last_message.created_at",
+                    "sender_id": "$last_message.sender_id"
+                },
+                "unread_count": 1
+            }
+        },
+        {
+            "$sort": {"last_message.created_at": -1}
+        }
+    ]
+    
+    conversations = await db.messages.aggregate(pipeline).to_list(length=None)
+    
+    # Convert ObjectIds to strings and decrypt last message content
+    for conv in conversations:
+        conv["conversation_id"] = str(conv["conversation_id"])
+        conv["participant"]["id"] = str(conv["participant"]["id"])
+        conv["last_message"]["id"] = str(conv["last_message"]["id"])
+        conv["last_message"]["sender_id"] = str(conv["last_message"]["sender_id"])
+        # Decrypt the last message content
+        conv["last_message"]["content"] = decrypt_message(conv["last_message"]["content"])
+    
+    return conversations
+
+@app.get("/messages/{user_id}")
+async def get_messages_with_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        other_user_object_id = ObjectId(user_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid user ID")
+    
+    # Check if other user exists
+    other_user = await db.users.find_one({"_id": other_user_object_id})
+    if not other_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get messages between current user and other user
+    messages = await db.messages.find({
+        "$or": [
+            {
+                "sender_id": current_user["_id"],
+                "recipient_id": other_user_object_id
+            },
+            {
+                "sender_id": other_user_object_id,
+                "recipient_id": current_user["_id"]
+            }
+        ]
+    }).sort("created_at", 1).to_list(length=None)
+    
+    # Decrypt content
+    for msg in messages:
+        msg["content"] = decrypt_message(msg["content"])
+
+    # Mark messages as read if they were sent to current user
+    unread_messages = [
+        msg["_id"] for msg in messages 
+        if msg["recipient_id"] == current_user["_id"] and not msg["read"]
+    ]
+    
+    if unread_messages:
+        await db.messages.update_many(
+            {"_id": {"$in": unread_messages}},
+            {"$set": {"read": True}}
+        )
+    
+    # Convert ObjectIds to strings
+    for message in messages:
+        message["id"] = str(message["_id"])
+        message["sender_id"] = str(message["sender_id"])
+        message["recipient_id"] = str(message["recipient_id"])
+        del message["_id"]
+    
+    return messages
+
+@app.get("/users/search")
+async def search_users(query: str, current_user: dict = Depends(get_current_user)):
+    if len(query) < 2:
+        raise HTTPException(status_code=400, detail="Search query must be at least 2 characters")
+    
+    users = await db.users.find({
+        "$and": [
+            {
+                "$or": [
+                    {"name": {"$regex": query, "$options": "i"}},
+                    {"username": {"$regex": query, "$options": "i"}}
+                ]
+            },
+            {"_id": {"$ne": current_user["_id"]}}
+        ]
+    }).limit(10).to_list(length=10)
+    
+    # Convert ObjectIds to strings
+    for user in users:
+        user["id"] = str(user["_id"])
+        del user["_id"]
+        del user["password"]  # Don't send password
+        del user["email"]     # Don't send email for privacy
+    
+    return users
 
 if __name__ == "__main__":
     import uvicorn

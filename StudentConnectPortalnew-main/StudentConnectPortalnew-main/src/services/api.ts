@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studentconnectportalnew.onrender.com';
+const API_BASE_URL = 'https://bankend-5bru.onrender.com';
 
 // Debug: Log the API URL being used
 console.log('API_BASE_URL:', API_BASE_URL);
@@ -192,6 +192,37 @@ class ApiService {
   // User endpoints
   async getUserProfile(userId: string) {
     const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Messaging endpoints
+  async sendMessage(recipientId: string, content: string) {
+    const response = await fetch(`${API_BASE_URL}/messages`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ recipient_id: recipientId, content }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getConversations() {
+    const response = await fetch(`${API_BASE_URL}/conversations`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getMessagesWithUser(userId: string) {
+    const response = await fetch(`${API_BASE_URL}/messages/${userId}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async searchUsers(query: string) {
+    const response = await fetch(`${API_BASE_URL}/users/search?query=${encodeURIComponent(query)}`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);

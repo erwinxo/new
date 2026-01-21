@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend-Backend Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Frontend-Backend Database Connection Test</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="testLocalBackend()">Test Local Backend (localhost:8000)</button>
+    <button onclick="testProductionBackend()">Test Production Backend (onrender.com)</button>
+    <button onclick="testFrontendConfig()">Test Frontend Configuration</button>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function testBackend(url, name) {
+            try {
+                addResult(`🔄 Testing ${name}...`, 'info');
+                
+                // Test health endpoint
+                const healthResponse = await fetch(`${url}/health`);
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    addResult(`✅ ${name} Health Check: Connected successfully`, 'success');
+                    addResult(`📊 Database Status: ${healthData.database}`, 'success');
+                    addResult(`👥 Users in Database: ${healthData.user_count}`, 'success');
+                    addResult(`📁 Collections: ${healthData.collections.join(', ')}`, 'success');
+                } else {
+                    addResult(`❌ ${name} Health Check: Failed (${healthResponse.status})`, 'error');
+                }
+                
+                // Test posts endpoint
+                const postsResponse = await fetch(`${url}/posts`);
+                if (postsResponse.ok) {
+                    const postsData = await postsResponse.json();
+                    addResult(`✅ ${name} Posts API: Connected successfully`, 'success');
+                    addResult(`📝 Posts in Database: ${postsData.length}`, 'success');
+                } else {
+                    addResult(`❌ ${name} Posts API: Failed (${postsResponse.status})`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ ${name} Connection Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLocalBackend() {
+            clearResults();
+            await testBackend('http://localhost:8000', 'Local Backend');
+        }
+        
+        async function testProductionBackend() {
+            clearResults();
+            await testBackend('https://studentconnectportalnew.onrender.com', 'Production Backend');
+        }
+        
+        async function testFrontendConfig() {
+            clearResults();
+            addResult('🔍 Checking Frontend Configuration...', 'info');
+            
+            // Check if we're in a Vite environment
+            if (typeof import !== 'undefined' && import.meta) {
+                addResult('✅ Vite environment detected', 'success');
+                
+                // Try to access environment variables
+                try {
+                    const apiUrl = import.meta.env.VITE_API_URL;
+                    addResult(`📡 API URL: ${apiUrl || 'Not set (using default)'}`, 'info');
+                    
+                    if (apiUrl) {
+                        await testBackend(apiUrl, 'Frontend Configured Backend');
+                    } else {
+                        addResult('⚠️ No VITE_API_URL set, using default: https://studentconnectportalnew.onrender.com', 'info');
+                        await testBackend('https://studentconnectportalnew.onrender.com', 'Default Backend');
+                    }
+                } catch (error) {
+                    addResult(`❌ Error accessing environment variables: ${error.message}`, 'error');
+                }
+            } else {
+                addResult('⚠️ Not in Vite environment, cannot check environment variables', 'info');
+            }
+        }
+        
+        // Auto-run frontend config test on page load
+        window.onload = function() {
+            addResult('🚀 Frontend-Backend Connection Test Ready', 'info');
+            addResult('Click the buttons above to test different connections', 'info');
+        };
+    </script>
+</body>
+</html> 

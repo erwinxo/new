@@ -93,7 +93,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword }) => {
         <button
           type="button"
           onClick={onForgotPassword}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          className="text-sm text-pink-500 hover:text-pink-700 font-medium"
         >
           Forgot password?
         </button>

@@ -53,11 +53,11 @@ const Header: React.FC<HeaderProps> = ({ onCreatePost }) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                {/* <img
-                  // src={user?.profilePicture || `https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400`}
+                <img
+                  src={user?.profilePicture || `https://i.pinimg.com/1200x/b1/48/8f/b1488fdac4488b4a116c6964c1735f60.jpg`}
                   alt={user?.name}
                   className="h-8 w-8 rounded-full object-cover"
-                /> */}
+                />
                 <span className="hidden sm:inline text-sm font-medium text-gray-700">
                   {user?.name}
                 </span>
